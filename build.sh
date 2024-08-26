@@ -1,10 +1,14 @@
-#!/bin/bash
+#!/bin/sh
+ROOT=$(cd `dirname $0`; pwd)
 
-docker stop test
-docker rm test 
+. $ROOT/conf
+IMAGE_NAME=${NAME}_img
+IMAGE_HOME=${NAME}_home
 
-TEST_IMAGE=test_jenkins_lts_jdk17:latest
-docker image rm ${TEST_IMAGE} 
-docker build -t ${TEST_IMAGE} .
+docker stop ${NAME}
+docker rm ${NAME}
 
-docker run -d --name test -v test_home:/var/jenkins_home -p 8080:8080 -p 50000:50000 --restart=on-failure $TEST_IMAGE
+docker image rm ${IMAGE_NAME}
+docker build -t ${IMAGE_NAME} .
+
+docker run -d --name ${NAME} -v ${IMAGE_HOME}:${STORGE_HOME} -p 8080:8080 -p 50000:50000 --restart=on-failure ${IMAGE_NAME}

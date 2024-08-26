@@ -1,22 +1,24 @@
 #!/bin/bash
+ROOT=$(cd `dirname $0`; pwd)
+
+. $ROOT/conf
+IMAGE_NAME=${NAME}_img
+IMAGE_HOME=${NAME}_home
+
 # 删除container
 docker stop test
 docker rm test
 
 # 恢复image
-TEST_IMAGE=test_jenkins_lts_jdk17
-docker image rm ${TEST_IMAGE}
-docker load -i ${TEST_IMAGE}.tar
+docker image rm ${IMAGE_NAME}
+docker load -i ${IMAGE_NAME}.tar
 docker load -i alpine.tar
 
 # 恢复volume
-docker volume rm test_home
-VOLUME_NAME=test_home
-BACKUP_DIR=$(pwd)
-BACKUP_FILE=${BACKUP_DIR}/${VOLUME_NAME}_backup.tar.gz
-echo "Restoring volume ${VOLUME_NAME} from backup..."
-docker run --rm -v ${VOLUME_NAME}:/tmp -v ${BACKUP_DIR}:/backup alpine tar xzvf /backup/${VOLUME_NAME}_backup.tar.gz -C /tmp
-echo "Volume ${VOLUME_NAME} restored from ${BACKUP_FILE}"
+docker volume rm ${IMAGE_HOME}
+echo "Restoring volume ${IMAGE_HOME} from backup..."
+docker run --rm -v ${IMAGE_HOME}:/tmp -v ${ROOT}:/backup alpine tar xzvf /backup/${IMAGE_HOME}_backup.tar.gz -C /tmp
+echo "Volume ${IMAGE_HOME} restored from ${ROOT}/${IMAGE_HOME}_backup.tar.gz"
 
-docker run --name test -d -v test_home:/var/jenkins_home -p 8080:8080 -p 50000:50000 --restart=on-failure ${TEST_IMAGE}:latest
+docker run --name ${NAME} -d -v ${IMAGE_HOME}:$STORGE_HOME -p 8080:8080 -p 50000:50000 --restart=on-failure ${IMAGE_NAME}:latest
 

@@ -1,0 +1,6 @@
+# 容器名称
+# 1. 内部会扩展出${NAME}_img用作导出的镜像名称
+# 2. 内部会扩展出${NAME}_home用作容器的volumn名称
+NAME=test
+# ${NAME}_home的挂载目录
+STORGE_HOME=/var/jenkins_home
